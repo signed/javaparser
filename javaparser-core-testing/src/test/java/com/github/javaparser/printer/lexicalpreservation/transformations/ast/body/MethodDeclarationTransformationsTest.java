@@ -28,9 +28,11 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.javadoc.Javadoc;
@@ -221,6 +223,26 @@ class MethodDeclarationTransformationsTest extends AbstractLexicalPreservingTest
         MethodDeclaration it = consider("public static void a(){}");
         it.removeModifier(Modifier.Keyword.PUBLIC);
         assertTransformedToString("static void a(){}", it);
+    }
+
+    @Test
+    void keepFormattingRemoveNewline() {
+        considerCode("public class A { public void m() { assertEquals(\n" +
+                "message, \n" +
+                "expected, \n" +
+                "actual); }}");
+
+        ExpressionStmt statement = (ExpressionStmt) cu.getType(0).getMethods().get(0).getBody().get().getStatement(0);
+        MethodCallExpr expression = (MethodCallExpr) statement.getExpression();
+        Expression firstArgument = expression.getArguments().get(0);
+        expression.remove(firstArgument);
+
+        String result = LexicalPreservingPrinter.print(cu);
+
+        assertEqualsNoEol("public class A { public void m() { assertEquals(\n" +
+                "expected, \n" +
+                "actual); }}", result);
+
     }
 
     @Test

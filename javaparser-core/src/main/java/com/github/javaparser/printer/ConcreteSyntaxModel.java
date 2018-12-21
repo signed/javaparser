@@ -391,7 +391,7 @@ public class ConcreteSyntaxModel {
                 typeArguments(),
                 child(ObservableProperty.NAME),
                 token(GeneratedJavaParserConstants.LPAREN),
-                list(ObservableProperty.ARGUMENTS, sequence(comma(), space()), none(), none()),
+                list(ObservableProperty.ARGUMENTS, sequence(comma(), space(), newline()), none(), none()),
                 token(GeneratedJavaParserConstants.RPAREN)
         ));
 
